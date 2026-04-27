@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>untuk uyuy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ffdee9 0%, #fff5bc 33%, #bceeff 66%, #e2bcff 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; text-transform: lowercase;
+        }
+
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        #music-btn { 
+            position: fixed; top: 20px; right: 20px; 
+            font-size: 14px; font-weight: 600; color: #f50057;
+            cursor: pointer; z-index: 1000; 
+            background: rgba(255, 255, 255, 0.6); padding: 8px 12px; border-radius: 10px; border: 2px solid #ff80ab;
+        }
+        
+        .decor { position: absolute; font-size: 60px; user-select: none; animation: pixelMove 1.5s steps(2) infinite; z-index: 1; }
+        @keyframes pixelMove { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+        .book-container { 
+            width: 95%; max-width: 400px; position: relative; z-index: 10; 
+            display: none; opacity: 0; transform: scale(0.8);
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .book-container.show { display: block; opacity: 1; transform: scale(1); }
+
+        .book, .msg-box, .win-popup {
+            background-color: #fff; background-image: url("https://www.transparenttextures.com/patterns/doodle-pop.png");
+            background-blend-mode: multiply; border: 5px solid #ff80ab; border-radius: 25px;
+        }
+
+        .book { padding: 30px; min-height: 520px; box-shadow: 10px 10px 0px rgba(245, 0, 87, 0.2); display: flex; flex-direction: column; position: relative; }
+        .header-special { font-weight: 600; color: #f50057; margin-bottom: 20px; text-align: center; font-size: 1.1rem; min-height: 2.5rem; }
+        .content-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 60px; }
+
+        .page { display: none; animation: slideIn 0.4s ease forwards; }
+        .page.active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        p { font-size: 1rem; line-height: 1.6; color: #444; margin-bottom: 15px; }
+
+        .nav { position: absolute; bottom: 30px; left: 30px; right: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .btn { background: #ff80ab; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; box-shadow: 3px 3px 0px #f50057; }
+        
+        /* Zoom 2 Detik */
+        .page-num { font-weight: 600; color: #ff80ab; transition: all 2s ease-in-out; transform-origin: center; z-index: 50; }
+
+        /* Game */
+        #game-container { width: 100%; height: 260px; background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 100%); position: relative; overflow: hidden; border-radius: 15px; border: 3px solid #ff80ab; display: none; }
+        #bird { width: 40px; height: 25px; background: #ffccff; position: absolute; left: 30px; top: 120px; z-index: 10; border-radius: 5px; border: 2px solid #ff80ab; display: flex; align-items: center; justify-content: center; }
+        #bird::before { content: '🌈'; position: absolute; left: -20px; font-size: 15px; }
+        #bird::after { content: '◕‿◕'; font-size: 10px; font-weight: bold; color: #f50057; }
+
+        .pipe { width: 50px; background: #81c784; position: absolute; right: -60px; border: 2px solid #388e3c; z-index: 5; }
+        .pipe.finish { background: #fff; background-image: repeating-conic-gradient(#000 0% 25%, #fff 0% 50%); background-size: 10px 10px; border: 2px solid #333; }
+
+        #egg-splat { position: absolute; font-size: 250px; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 25; pointer-events: none; }
+        #cow { position: absolute; font-size: 100px; right: -120px; z-index: 15; pointer-events: none; }
+        #spider { position: absolute; font-size: 120px; bottom: -150px; z-index: 15; pointer-events: none; transition: bottom 0.5s ease; }
+
+        #overlay, #welcome-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 128, 171, 0.95); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 20px; transition: opacity 0.5s; }
+        #overlay { display: none; }
+        .msg-box { width: 100%; max-width: 320px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        #msgText { font-weight: 600; font-size: 1rem; color: #f50057; margin-bottom: 20px; line-height: 1.4; }
+
+        #win-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; border-radius: 20px; }
+        
+        /* Layar Kunci Biar Gak Bisa Klik */
+        #anti-click { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: none; cursor: default; }
+
+        .heart-click { position: absolute; pointer-events: none; animation: floatUp 1s ease-out forwards; z-index: 999; }
+        @keyframes floatUp { to { transform: translateY(-130px) rotate(30deg); opacity: 0; } }
+    </style>
+</head>
+<body onclick="spawnHeart(event)">
+
+    <div id="anti-click"></div>
+
+    <div id="welcome-overlay">
+        <div class="msg-box">
+            <p style="font-weight: 600; color: #f50057;">halo uyuyyy, kamu cebol yaa?</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn" onclick="startApp('manusia cebol')">iya, aku cebol😔</button>
+                <button class="btn" onclick="startApp('manusia botol yakult')">enggak, aku botol yakult😀</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="music-btn" onclick="toggleMusic()">music off</div>
+    <audio id="myAudio" loop><source src="musik.mp3" type="audio/mpeg"></audio>
+
+    <div class="decor" style="top: 0%; left: 0%;">🧸</div>
+    <div class="decor" style="top: 5%; right: 5%;">💖</div>
+    <div class="decor" style="bottom: 0%; left: 0%;">🧸</div>
+    <div class="decor" style="bottom: 0%; right: 0%;">🧸</div>
+
+    <div class="book-container" id="book-container">
+        <div class="book" id="mainBook">
+            <div id="win-overlay">
+                <div class="win-popup" style="padding: 20px; text-align: center; background: none; border: none;">
+                    <p style="font-weight:600;">yeyyy selamaatt sayangg, kamu mendapatkan 1 sctb🗿</p>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="btn" onclick="closeWinPopup()">y</button>
+                        <button class="btn" onclick="resetGameTotal()" style="background: #ba68c8; box-shadow: 3px 3px 0px #7b1fa2;">main lagi</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-special" id="dynamic-header">sulaiman untuk uyuy...</div>
+
+            <div class="content-area">
+                <div class="page active" id="p1"><p>sebenernya mager bgt bikin ginian, cuma ya kepikiran aja...</p><p>makasih ya udah ada terus, padahal aku kadang suka random bgt.</p></div>
+                <div class="page" id="p2"><p>aku ga pinter rangkai kata sih, pokoknya ya makasih udah sabar.</p><p>kamu tuh part paling asik di tiap hari aku, seriusan.</p></div>
+                <div class="page" id="p3"><p>gausah mikir aneh-aneh ya ke depannya.</p><p>kita jalanin aja pelan-pelan, yg penting bareng terus.</p></div>
+                <div class="page" id="p4"><p>dah ah, gitu aja. nanti malah tambah baper kamu nya haha.</p><p>u know i love u lah yaaa.</p></div>
+                <div class="page" id="p5">
+                    <p style="font-size: 0.8rem; margin-bottom: 8px;">oh yaaa, nih coba game nya sayang. aku bikin, kalau menang ada hadiahnya lohh wkwkwkwk</p>
+                    <div id="game-container">
+                        <div id="bird"></div><div id="egg-splat">🍳</div><div id="cow">🐄</div><div id="spider">🕷️</div>
+                    </div>
+                    <p id="game-msg" style="margin-top:10px; font-weight:600; text-align: center; font-size: 0.85rem;">pipes: 0/15</p>
+                    <center><button class="btn" id="start-btn" onclick="startGame()">main!</button></center>
+                </div>
+            </div>
+
+            <div class="nav" id="nav-ui">
+                <button class="btn" id="prev" onclick="move(-1)" style="visibility:hidden">balik</button>
+                <div class="page-num" id="pageNum">1/5</div>
+                <button class="btn" id="next" onclick="move(1)">lanjut</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay">
+        <div class="msg-box">
+            <div id="msgText"></div>
+            <center>
+                <button class="btn" id="y-final-btn" onclick="nextEndingMsg()" style="display:none">y</button>
+                <a href="https://wa.me/6289676650360" id="wa-btn" style="display:none; text-decoration:none;" class="btn">sini wa</a>
+            </center>
+        </div>
+    </div>
+
+    <script>
+        let cur = 1; let audio = document.getElementById("myAudio"); let isPlaying = false;
+        let pipeTimer; let score = 0; let checkpoint = 0; let totalPipes = 15;
+        let pipesSpawned = 0; const hearts = ['💝','💖','💗','💓','💞','💕','🩷'];
+
+        function startApp(tipe) {
+            document.getElementById('dynamic-header').innerText = `from sulaiman for uyuy ${tipe}`;
+            const welcome = document.getElementById('welcome-overlay');
+            welcome.style.opacity = '0';
+            setTimeout(() => {
+                welcome.style.display = 'none';
+                const book = document.getElementById('book-container');
+                book.style.display = 'block';
+                setTimeout(() => book.classList.add('show'), 50);
+                toggleMusic(); 
+            }, 500);
+        }
+
+        function toggleMusic() {
+            if (isPlaying) { audio.pause(); document.getElementById('music-btn').innerText = "music off"; } 
+            else { audio.play().catch(e => console.log("Audio play deferred")); document.getElementById('music-btn').innerText = "music on"; }
+            isPlaying = !isPlaying;
+        }
+
+        function move(s) {
+            if (cur === 5 && s === 1) { startEnding(); return; }
+            document.getElementById(`p${cur}`).classList.remove('active');
+            cur += s;
+            document.getElementById(`p${cur}`).classList.add('active');
+            document.getElementById('pageNum').innerText = `${cur}/5`;
+            document.getElementById('prev').style.visibility = cur === 1 ? 'hidden' : 'visible';
+            document.getElementById('game-container').style.display = cur === 5 ? 'block' : 'none';
+        }
+
+        let birdY = 120; let gravity = 0.16; let velocity = 0; let gameActive = false;
+
+        function startGame() {
+            gameActive = true; score = checkpoint; pipesSpawned = checkpoint; birdY = 120; velocity = 0;
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('game-msg').innerText = `pipes: ${checkpoint}/${totalPipes}`;
+            document.querySelectorAll('.pipe').forEach(p => p.remove());
+            clearInterval(pipeTimer);
+            pipeTimer = setInterval(spawnPipe, 1700);
+            startDisturbances();
+            loop();
+        }
+
+        function loop() {
+            if (!gameActive) return;
+            velocity += gravity; birdY += velocity;
+            document.getElementById('bird').style.top = birdY + 'px';
+            if (birdY > 230 || birdY < 0) endGame(false);
+            document.querySelectorAll('.pipe').forEach(p => {
+                let right = parseInt(p.style.right);
+                p.style.right = (right + 3) + 'px';
+                if (right > 360 && !p.passed) {
+                    p.passed = true; score += 0.5;
+                    checkpoint = Math.floor(score);
+                    document.getElementById('game-msg').innerText = `pipes: ${checkpoint}/${totalPipes}`;
+                    if (checkpoint >= totalPipes) endGame(true);
+                }
+                let b = document.getElementById('bird').getBoundingClientRect();
+                let pr = p.getBoundingClientRect();
+                if (b.left < pr.right && b.right > pr.left && b.top < pr.bottom && b.bottom > pr.top) endGame(false);
+            });
+            moveCow();
+            requestAnimationFrame(loop);
+        }
+
+        function spawnPipe() {
+            if (!gameActive || pipesSpawned >= totalPipes) return;
+            pipesSpawned++;
+            let gap = 110; let topH = Math.random() * 80 + 20;
+            let tp = document.createElement('div'); tp.className = 'pipe';
+            let bp = document.createElement('div'); bp.className = 'pipe';
+            if(pipesSpawned === totalPipes && totalPipes < 90000) { tp.classList.add('finish'); bp.classList.add('finish'); }
+            tp.style.height = topH + 'px'; tp.style.top = '0'; tp.style.right = '-60px';
+            bp.style.height = (260 - topH - gap) + 'px'; bp.style.bottom = '0'; bp.style.right = '-60px';
+            document.getElementById('game-container').appendChild(tp);
+            document.getElementById('game-container').appendChild(bp);
+        }
+
+        function startDisturbances() {
+            if(window.disturbActive) return;
+            window.disturbActive = true;
+            setInterval(() => { if(gameActive) { document.getElementById('egg-splat').style.display = 'block'; setTimeout(() => document.getElementById('egg-splat').style.display = 'none', 2500); }}, 7000);
+            setInterval(() => { if(gameActive) { let spider = document.getElementById('spider'); spider.style.bottom = '0px'; spider.style.left = Math.random() * 150 + 'px'; setTimeout(() => spider.style.bottom = '-150px', 2000); }}, 5000);
+        }
+
+        let cowX = -150;
+        function moveCow() {
+            let cow = document.getElementById('cow');
+            if (cowX < -120) { if(Math.random() < 0.01) { cowX = 400; cow.style.top = Math.random() * 100 + 'px'; }}
+            else { cowX -= 5; cow.style.right = (400 - cowX) + 'px'; }
+        }
+
+        document.addEventListener('mousedown', (e) => { if(gameActive && e.target.id !== 'music-btn') velocity = -3.5; });
+
+        function endGame(win) {
+            gameActive = false; clearInterval(pipeTimer);
+            if (win) { document.getElementById('win-overlay').style.display = 'flex'; }
+            else { 
+                document.getElementById('game-msg').innerText = "hadeh gitu doang mati jir, nob😒";
+                document.getElementById('start-btn').innerText = `ulang dari pipa ${checkpoint}`;
+                document.getElementById('start-btn').style.display = 'block';
+            }
+        }
+
+        function resetGameTotal() { 
+            totalPipes = 99999; // MODE BRUTAL DIAKTIFKAN
+            checkpoint = 0; score = 0; pipesSpawned = 0; 
+            document.getElementById('win-overlay').style.display = 'none'; 
+            startGame(); 
+        }
+
+        function closeWinPopup() { document.getElementById('win-overlay').style.display = 'none'; }
+
+        function startEnding() {
+            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('msgText').innerText = "woii udah 5/5 loh halamannya liat dah";
+            document.getElementById('y-final-btn').style.display = 'inline-block';
+        }
+
+        function nextEndingMsg() {
+            document.getElementById('y-final-btn').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('anti-click').style.display = 'block'; // MATIKAN KLIK
+            
+            const pn = document.getElementById('pageNum');
+            const pnRect = pn.getBoundingClientRect();
+            const moveX = (window.innerWidth / 2) - pnRect.left - (pnRect.width / 2);
+            const moveY = (window.innerHeight / 2) - pnRect.top - (pnRect.height / 2);
+            
+            pn.style.transform = `translate(${moveX}px, ${moveY}px) scale(15)`;
+            pn.style.color = "red";
+            
+            setTimeout(() => {
+                document.getElementById('overlay').style.display = 'flex';
+                document.getElementById('msgText').innerText = "tuh kan, dah sini masuk wa lagi. hadeh";
+                document.getElementById('wa-btn').style.display = 'inline-block';
+                document.getElementById('anti-click').style.display = 'none'; // AKTIFKAN KLIK LAGI
+            }, 2100);
+        }
+
+        function spawnHeart(e) {
+            if(document.getElementById('anti-click').style.display === 'block') return;
+            if(e.target.id === 'music-btn' || e.target.classList.contains('btn')) return;
+            const h = document.createElement('div');
+            h.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+            h.className = 'heart-click'; h.style.left = e.clientX + 'px'; h.style.top = e.clientY + 'px';
+            h.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 1000);
+            if(!isPlaying && isPlaying !== null) toggleMusic();
+        }
+    </script>
+</body>
+</html>
